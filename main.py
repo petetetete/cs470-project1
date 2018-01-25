@@ -1,10 +1,24 @@
+# Program metadata
 __author__ = "Peter H."
+
+# Declare constants
+DICTIONARY_FILE = "words.txt"
+
+
+def load_dictionary(file_name):
+
+    # Load stripped lower-case lines into array
+    with open(file_name, "r") as file:
+        lines = [line.rstrip("\n").lower() for line in file]
+
+    # Return dictionary object as a set to improve lookup times
+    return set(lines)
 
 
 def load_board(file_name):
 
     # Load file into multidimensional array "lines"
-    with open(file_name) as file:
+    with open(file_name, "r") as file:
         file_stripped = [line for line in file if line.strip()]
         lines = [line.split() for line in file_stripped]
 
@@ -60,7 +74,7 @@ def legal_moves(possible_moves, move_history):
     return list(set(possible_moves) - set(move_history))
 
 
-def examine_state(board, position, move_history):
+def examine_state(board, position, move_history, dictionary):
 
     # Add current position to history
     move_history.append(position)
@@ -68,18 +82,35 @@ def examine_state(board, position, move_history):
     # Get the current word created by the history
     word = ''.join(map(lambda p: board[p[1]][p[0]], move_history))
 
-    # TODO: Create return tuple
+    # Check if the word in in the dictionary
+    is_word = word.lower() in dictionary
 
-    return
+    # Return tuple of (CURRENT_WORD, WORD_IS_IN_DICTIONARY)
+    return (word, is_word)
 
 
-# Testing
+# Test the functions
+print("Testing Fred Flintstone Functions\n")
+
+# Load the word dictionary
+dictionary = load_dictionary(DICTIONARY_FILE)
+
+# Load and print a board
+print("load_board/print_board:")
 board = load_board("boards/4x4.txt")
 print_board(board)
 
+# Test determination of possible moves
+print("\npossible_moves:")
 moves = possible_moves((3, 1), board)
 print(moves)
 
-legal_moves(moves, [(2, 0), (2, 2), (3, 0), (5, 3)])
+# Test determination of legal moves
+print("\nlegal_moves:")
+legal = legal_moves(moves, [(2, 0), (2, 2), (3, 0), (5, 3)])
+print(legal)
 
-print(examine_state(board, (2, 1), [(0, 0), (1, 0), (2, 0)]))
+# Several example calls of examine_state
+print("\nexamine_state:")
+print(examine_state(board, (2, 1), [(0, 0), (1, 0), (2, 0)], dictionary))
+print(examine_state(board, (0, 1), [(1, 0)], dictionary))
