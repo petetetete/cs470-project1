@@ -54,14 +54,32 @@ def possible_moves(position, board):
 
 
 def legal_moves(possible_moves, move_history):
-    return
+
+    # Convert the lists into sets to literally get
+    # the difference between the two
+    return list(set(possible_moves) - set(move_history))
 
 
 def examine_state(board, position, move_history):
+
+    # Add current position to history
+    move_history.append(position)
+
+    # Get the current word created by the history
+    word = ''.join(map(lambda p: board[p[1]][p[0]], move_history))
+
+    # TODO: Create return tuple
+
     return
 
 
 # Testing
 board = load_board("boards/4x4.txt")
 print_board(board)
-print(possible_moves((3, 1), board))
+
+moves = possible_moves((3, 1), board)
+print(moves)
+
+legal_moves(moves, [(2, 0), (2, 2), (3, 0), (5, 3)])
+
+print(examine_state(board, (2, 1), [(0, 0), (1, 0), (2, 0)]))
