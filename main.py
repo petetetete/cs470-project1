@@ -5,6 +5,7 @@ __author__ = "Peter H."
 DICTIONARY_FILE = "words.txt"
 
 
+# Load a dictionary into a set
 def load_dictionary(file_name):
 
     # Load stripped lower-case lines into array
@@ -15,6 +16,7 @@ def load_dictionary(file_name):
     return set(lines)
 
 
+# Load in a Boggle board into a multi-dimensional array
 def load_board(file_name):
 
     # Load file into multidimensional array "lines"
@@ -32,6 +34,7 @@ def load_board(file_name):
     return lines
 
 
+# Prints a Boggle board multi-dimensional array
 def print_board(board):
 
     # Iterate over rows and print space delimited
@@ -39,6 +42,7 @@ def print_board(board):
         print(" ".join(row))
 
 
+# Determine all possible positions are a given position
 def possible_moves(position, board):
 
     # Get the size of the board (N in NxN) and
@@ -67,6 +71,7 @@ def possible_moves(position, board):
     return positions
 
 
+# Determine which of the possible moves were not already visited
 def legal_moves(possible_moves, move_history):
 
     # Convert the lists into sets to literally get
@@ -74,6 +79,7 @@ def legal_moves(possible_moves, move_history):
     return list(set(possible_moves) - set(move_history))
 
 
+# Examine new state of board given a new position
 def examine_state(board, position, move_history, dictionary):
 
     # Add current position to history
@@ -89,7 +95,11 @@ def examine_state(board, position, move_history, dictionary):
     return (word, is_word)
 
 
-# Test the functions
+###########
+# Testing #
+###########
+
+
 print("Testing Fred Flintstone Functions\n")
 
 # Load the word dictionary
