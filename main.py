@@ -1,6 +1,3 @@
-# Program metadata
-__author__ = "Peter H."
-
 # Declare constants
 DICTIONARY_FILE = "words.txt"
 
@@ -45,18 +42,18 @@ def print_board(board):
 # Determine all possible positions are a given position
 def possible_moves(position, board):
 
-    # Get the size of the board (N in NxN) and
-    # create an initial positions list
+    # Get the size of the board (N in NxN) and create list to hold positions
     size = len(board)
     positions = []
 
     # Iterate over the "9" spaces surrounding the current point (including it)
     for y in range(-1, 2):
+
+        new_y = position[1] + y  # Calculate new y
+
         for x in range(-1, 2):
 
-            # Calculate the new positions
-            new_x = position[0] + x
-            new_y = position[1] + y
+            new_x = position[0] + x  # Calculate new x
 
             # Exclude the positions that are "off" the
             # board and ignore the original position
@@ -66,7 +63,7 @@ def possible_moves(position, board):
                 continue
 
             # Add valid positions to the array
-            positions.append((position[0] + x, position[1] + y))
+            positions.append((new_y, new_x))
 
     return positions
 
@@ -74,8 +71,7 @@ def possible_moves(position, board):
 # Determine which of the possible moves were not already visited
 def legal_moves(possible_moves, move_history):
 
-    # Convert the lists into sets to literally get
-    # the difference between the two
+    # Convert the lists into sets to literally get the difference
     return list(set(possible_moves) - set(move_history))
 
 
@@ -86,7 +82,7 @@ def examine_state(board, position, move_history, dictionary):
     move_history.append(position)
 
     # Get the current word created by the history
-    word = ''.join(map(lambda p: board[p[1]][p[0]], move_history))
+    word = "".join(map(lambda p: board[p[0]][p[1]], move_history))
 
     # Check if the word in in the dictionary
     is_word = word.lower() in dictionary
@@ -99,8 +95,7 @@ def examine_state(board, position, move_history, dictionary):
 # Testing #
 ###########
 
-
-print("Testing Fred Flintstone Functions\n")
+print("\nTesting Flintstone Functions\n----------------------------\n")
 
 # Load the word dictionary
 dictionary = load_dictionary(DICTIONARY_FILE)
@@ -117,8 +112,7 @@ print(moves)
 
 # Test determination of legal moves
 print("\nlegal_moves:")
-legal = legal_moves(moves, [(2, 0), (2, 2), (3, 0), (5, 3)])
-print(legal)
+print(legal_moves(moves, [(2, 0), (2, 2), (3, 0), (5, 3)]))
 
 # Several example calls of examine_state
 print("\nexamine_state:")
