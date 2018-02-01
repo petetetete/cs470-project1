@@ -1,5 +1,12 @@
+# Python Standard Library imports
+import time
+
+# Program metadata
+__author__ = "Peter H."
+
 # Declare constants
 DICTIONARY_FILE = "words.txt"
+BOARD_FILE = "boards/4x4.txt"
 
 
 # Load a dictionary into a set
@@ -39,8 +46,13 @@ def print_board(board):
         print(" ".join(row))
 
 
-# Determine all possible positions are a given position
-def possible_moves(position, board):
+def print_words(words):
+    print("TODO")
+    print(words)
+
+
+# Determine which of the possible moves were not already visited
+def legal_moves(board, position, move_history):
 
     # Get the size of the board (N in NxN) and create list to hold positions
     size = len(board)
@@ -48,73 +60,97 @@ def possible_moves(position, board):
 
     # Iterate over the "9" spaces surrounding the current point (including it)
     for y in range(-1, 2):
-
         new_y = position[1] + y  # Calculate new y
 
         for x in range(-1, 2):
+            new_point = (position[0] + x, new_y)  # Calculate new point
 
-            new_x = position[0] + x  # Calculate new x
-
-            # Exclude the positions that are "off" the
-            # board and ignore the original position
-            if (new_x >= size or new_x < 0 or
-                new_y >= size or new_y < 0 or
-                (x == 0) and (y == 0)):
+            # Exclude the positions that are "off" the board or visited
+            if (new_point[0] >= size or new_point[0] < 0 or
+                new_point[1] >= size or new_point[1] < 0 or
+                new_point in move_history):
                 continue
 
             # Add valid positions to the array
-            positions.append((new_y, new_x))
+            positions.append(new_point)
 
     return positions
 
 
-# Determine which of the possible moves were not already visited
-def legal_moves(possible_moves, move_history):
+def find_words(words, position, clever, move_history=[]):
 
-    # Convert the lists into sets to literally get the difference
-    return list(set(possible_moves) - set(move_history))
+    # Add current position to history (avoid mutating variable)
+    move_history = move_history + [position]
 
+    # Find the legal moves from this position
+    moves = legal_moves(board, position, move_history)
 
-# Examine new state of board given a new position
-def examine_state(board, position, move_history, dictionary):
-
-    # Add current position to history
-    move_history.append(position)
+    # If there are no valid moves
+    if not moves:
+        return words
 
     # Get the current word created by the history
-    word = "".join(map(lambda p: board[p[0]][p[1]], move_history))
+    word = "".join(map(lambda p: board[p[1]][p[0]], move_history))
 
     # Check if the word in in the dictionary
-    is_word = word.lower() in dictionary
+    if word.lower() in dictionary and word not in words:
+        words.append(word)  # Just mutate the provided array
 
-    # Return tuple of (CURRENT_WORD, WORD_IS_IN_DICTIONARY)
-    return (word, is_word)
+    # Find words down every legal move path
+    for move in moves:
+        global total_moves
+        total_moves += 1
+        words = find_words(words, move, clever, move_history)
+
+    return words
 
 
-###########
-# Testing #
-###########
+if __name__ == "__main__":
 
-print("\nTesting Flintstone Functions\n----------------------------\n")
+    # Declare and initialize globals
+    dictionary = load_dictionary(DICTIONARY_FILE)
+    board = load_board(BOARD_FILE)
+    words = []
+    total_moves = len(board) ** 2
+    clever = False
 
-# Load the word dictionary
-dictionary = load_dictionary(DICTIONARY_FILE)
+    #####################
+    # Program Execution #
+    #####################
 
-# Load and print a board
-print("load_board/print_board:")
-board = load_board("boards/4x4.txt")
-print_board(board)
+    # Print initial informational message
+    if clever:
+        print("OUTPUT FROM NOT-QUITE-SO-NEANDERTHAL APPROACH. "
+              "Check out those stats!\n")
+    else:
+        print("OUTPUT FROM FLINTSTONE CLASSIC BAM-BAM BASH-IT APPROACH:\n")
 
-# Test determination of possible moves
-print("\npossible_moves:")
-moves = possible_moves((3, 1), board)
-print(moves)
+    # Print board state
+    print_board(board)
 
-# Test determination of legal moves
-print("\nlegal_moves:")
-print(legal_moves(moves, [(2, 0), (2, 2), (3, 0), (5, 3)]))
+    # Print starting messages
+    print("\nAnd we're off!")
+    print("Running with cleverness:", "ON" if clever else "OFF")
 
-# Several example calls of examine_state
-print("\nexamine_state:")
-print(examine_state(board, (2, 1), [(0, 0), (1, 0), (2, 0)], dictionary))
-print(examine_state(board, (0, 1), [(1, 0)], dictionary))
+    # Save starting time
+    start_time = time.time()
+
+    # Find words at each starting point
+    for y in range(len(board)):
+        for x in range(len(board)):
+            find_words(words, (x, y), clever)
+
+    # Save ending time and calculate total elapsed
+    end_time = time.time()
+    total_time = str(round(end_time - start_time, 3))
+
+    # Print ending messages
+    print("All done")
+    print("\nSearched total of",
+          total_moves, "moves in",
+          total_time, "seconds\n")
+
+    # Print word stats
+    print_words(words)
+
+    print("\nProcess finished with exit code 0\n")
