@@ -6,7 +6,7 @@ __author__ = "Peter H."
 
 # Declare constants
 DICTIONARY_FILE = "words.txt"
-BOARD_FILE = "boards/4x4.txt"
+BOARD_FILE = "boards/3x3.txt"
 
 
 # Load a dictionary into a set
@@ -23,19 +23,18 @@ def load_dictionary(file_name):
 # Load in a Boggle board into a multi-dimensional array
 def load_board(file_name):
 
-    # Load file into multidimensional array "lines"
+    # Load file into multidimensional array "board"
     with open(file_name, "r") as file:
-        file_stripped = [line for line in file if line.strip()]
-        lines = [line.split() for line in file_stripped]
+        board = [line.lower().split() for line in file if line.strip()]
 
     # Check if the board lengths all match
-    valid_board = all(len(line) == len(lines) for line in lines)
+    valid_board = all(len(row) == len(board) for row in board)
 
     # Handle invalid boards
     if not valid_board:
         raise ValueError("Invalid input board")
 
-    return lines
+    return board
 
 
 # Prints a Boggle board multi-dimensional array
@@ -43,19 +42,39 @@ def print_board(board):
 
     # Iterate over rows and print space delimited
     for row in board:
-        print(" ".join(row))
+        print(" ".join(row).upper())
 
 
+# Prints a formatted output of the words found
 def print_words(words):
-    print("TODO")
-    print(words)
+
+    print("Words found:")
+
+    # Find all word lengths that exist
+    lengths = []
+    for word in words:
+        if not len(word) in lengths:
+            lengths.append(len(word))
+
+    lengths.sort()
+
+    # Print each word that matches the each length
+    for length in lengths:
+        print(length, "- letter words:", ", ".join(
+            [word.upper() for word in words if len(word) == length]))
+
+    # Print final word wrapup
+    print("\nFound", len(words), "words in total.")
+    print("Alpha-sorted list words:")
+    print(sorted(map(str.upper, words)))
 
 
 # Determine which of the possible moves were not already visited
 def legal_moves(board, position, move_history):
 
-    # Get the size of the board (N in NxN) and create list to hold positions
     size = len(board)
+
+    # Create list to hold positions
     positions = []
 
     # Iterate over the "9" spaces surrounding the current point (including it)
@@ -93,7 +112,7 @@ def find_words(words, position, clever, move_history=[]):
     word = "".join(map(lambda p: board[p[1]][p[0]], move_history))
 
     # Check if the word in in the dictionary
-    if word.lower() in dictionary and word not in words:
+    if word in dictionary and word not in words:
         words.append(word)  # Just mutate the provided array
 
     # Find words down every legal move path
