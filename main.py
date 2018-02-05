@@ -7,7 +7,7 @@ __author__ = "Peter H."
 # Declare constants
 DICTIONARY_FILE = "words.txt"
 BOARD_FILE = "boards/4x4.txt"
-IS_CLEVER = False
+IS_CLEVER = True
 
 
 # Load a dictionary into a set
@@ -53,23 +53,25 @@ def print_board(board):
 # Prints a formatted output of the words found
 def print_words(words):
 
-    print("Words found:")  # Initial print
+    # Initial print and sort words set
+    print("Words found:")
+    words = sorted(map(str.upper, words))
 
     # Find all word lengths that exist
     lengths = {len(word) for word in words}
     for word in words:
         if not len(word) in lengths:
-            lengths.append(len(word))
+            lengths.add(len(word))
 
     # Print each word that matches the each length
     for length in lengths:
         print(length, "- letter words:", ", ".join(
-            [word.upper() for word in words if len(word) == length]))
+            [word for word in words if len(word) == length]))
 
     # Print final word wrapup
     print("\nFound", len(words), "words in total.")
     print("Alpha-sorted list words:")
-    print(sorted(map(str.upper, words)))
+    print(words)
 
 
 # Determine which of the possible moves were not already visited
@@ -84,6 +86,7 @@ def legal_moves(board, position, move_history):
         new_y = position[1] + y  # Calculate new y
 
         for x in range(-1, 2):
+
             new_point = (position[0] + x, new_y)  # Calculate new point
 
             # Exclude the positions that are "off" the board or visited
@@ -99,7 +102,7 @@ def legal_moves(board, position, move_history):
 
 
 # Recursively finds words given a starting position
-def find_words(words, position, clever, move_history):
+def find_words(position, clever, move_history):
 
     # Iterate the total number of moves count
     global total_moves
@@ -122,12 +125,12 @@ def find_words(words, position, clever, move_history):
         return
 
     # Check if the word in in the dictionary
-    if word in dictionary and word not in words:
-        words.append(word)  # Just mutate the provided array
+    if word in dictionary:
+        words.add(word)  # Just mutate the provided set
 
     # Find words at each of the legal moves
     for move in moves:
-        find_words(words, move, clever, move_history)
+        find_words(move, clever, move_history)
 
 
 if __name__ == "__main__":
@@ -135,19 +138,12 @@ if __name__ == "__main__":
     # Declare and initialize globals
     board = load_board(BOARD_FILE)
     dictionary = load_dictionary(DICTIONARY_FILE, board)
-    words = []
+    words = set()
     total_moves = 0
 
     #####################
     # Program Execution #
     #####################
-
-    # Print initial informational message
-    if IS_CLEVER:
-        print("OUTPUT FROM NOT-QUITE-SO-NEANDERTHAL APPROACH. "
-              "Check out those stats!\n")
-    else:
-        print("OUTPUT FROM FLINTSTONE CLASSIC BAM-BAM BASH-IT APPROACH:\n")
 
     # Print board state
     print_board(board)
@@ -162,13 +158,7 @@ if __name__ == "__main__":
     # Find words at each starting point
     for y in range(len(board)):
         for x in range(len(board)):
-
-            # print("[finding words at (", x, ",", " ",
-            #       y, ")]", sep="", end="\r")
-
-            find_words(words, (x, y), IS_CLEVER, [])
-
-    # print("\r                          ", end="\r")
+            find_words((x, y), IS_CLEVER, [])
 
     # Save ending time and calculate total elapsed
     end_time = time.time()
@@ -182,4 +172,3 @@ if __name__ == "__main__":
 
     # Print words found and close her out
     print_words(words)
-    print("\nProcess finished with exit code 0\n")
